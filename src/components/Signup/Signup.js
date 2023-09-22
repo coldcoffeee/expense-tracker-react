@@ -1,158 +1,192 @@
-import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
+import styles from "./Signup.module.css";
+import { useState } from "react";
+import useAuthState from "./AuthStates";
+import ToastItem from "../common/ToastItem";
+import { useNavigate } from "react-router-dom";
 
-const Signup = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
+function Signup() {
+  const navigate = useNavigate();
+
+  const [showToast, setShowToast] = useState({
+    status: "completed",
+    message: "",
   });
+  const [login, setLogin] = useState(true);
+  const [error, setError] = useState(false);
+  const {
+    state: authState,
+    updateEmail,
+    updatePassword,
+    updateConfirmation,
+    signup,
+    signin,
+  } = useAuthState();
 
-  const [formErrors, setFormErrors] = useState({
-    emailError: "",
-    passwordError: "",
-    confirmPasswordError: "",
-  });
-
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  useEffect(() => {
-    const validateEmail = (email) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
-    };
-
-    const validatePassword = (password) => {
-      return password.length >= 8;
-    };
-
-    const validateForm = () => {
-      const { email, password, confirmPassword } = formData;
-      const errors = {
-        emailError: "",
-        passwordError: "",
-        confirmPasswordError: "",
-      };
-
-      if (email !== "" && !validateEmail(email)) {
-        errors.emailError = "Please enter a valid email";
-      }
-
-      if (password !== "" && !validatePassword(password)) {
-        errors.passwordError = "Please enter a strong password";
-      }
-
-      if (
-        password !== "" &&
-        confirmPassword !== "" &&
-        password !== confirmPassword
-      ) {
-        errors.confirmPasswordError = "Passwords do not match";
-      }
-
-      setFormErrors(errors);
-    };
-
-    validateForm();
-  }, [formData]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    console.log(!Object.values(formErrors).every((error) => error === ""));
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const emailChangeHandler = (e) => {
+    e.preventDefault();
+    updateEmail(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const passwordChangeHandler = (e) => {
     e.preventDefault();
-    console.log(formData);
-    const isValid = Object.values(formErrors).every((error) => error === "");
+    updatePassword(e.target.value);
+  };
 
-    if (isValid) {
-      // Form is valid, you can handle form submission here.
-      // For example, you can make an API call to submit the data.
-      // For now, we'll just set formSubmitted to true.
-      setFormSubmitted(true);
+  const passwordConfirmationChangeHandler = (e) => {
+    e.preventDefault();
+    updateConfirmation(e.target.value);
+  };
+
+  const formSubmitHandler = async (e) => {
+    e.preventDefault();
+    if (login) {
+      if (authState.isEmailValid && authState.isPasswordValid) {
+        try {
+          const data = await signin();
+          setShowToast({
+            status: "success",
+            message: "Logged in successfully",
+          });
+          setTimeout(setShowToast, 5000, { message: "", status: "completed" });
+          navigate("/home", {
+            state: {
+              message: "Logged in successfully!",
+              status: "success",
+            },
+          });
+          localStorage.setItem("idToken", data.idToken);
+        } catch (err) {
+          setShowToast({
+            status: "error",
+            message: `Error: ${
+              err.response
+                ? err.response.data.error.message
+                    .toLowerCase()
+                    .replace(/_/g, " ")
+                : err.message
+            }`,
+          });
+          setTimeout(setShowToast, 5000, { message: "", status: "completed" });
+        }
+      } else {
+        setError(true);
+        setTimeout(setError, 5000, false);
+        return;
+      }
+    } else {
+      if (authState.isFormValid) {
+        try {
+          await signup();
+          setShowToast({
+            status: "success",
+            message: "Registration successful",
+          });
+          setTimeout(setShowToast, 5000, { message: "", status: "completed" });
+        } catch (err) {
+          setShowToast({
+            status: "error",
+            message: `Error: ${
+              err.response
+                ? err.response.data.error.message
+                    .toLowerCase()
+                    .replace(/_/g, " ")
+                : err.message
+            }`,
+          });
+          setTimeout(setShowToast, 5000, { message: "", status: "completed" });
+        }
+      } else {
+        setError(true);
+        setTimeout(setError, 5000, false);
+        return;
+      }
     }
   };
 
   return (
-    <Form style={{ fontSize: "2vmin" }} onSubmit={handleSubmit}>
-      <Form.Label>
-        <h2>Sign Up</h2>
-      </Form.Label>
-      {formSubmitted && (
-        <Card body className="text-danger border-danger">
-          Something went wrong
-        </Card>
+    <div
+      className={`${styles.landingPage} h-100 w-100 d-flex align-items-center`}
+    >
+      {showToast.status !== "completed" && (
+        <ToastItem status={showToast.status} message={showToast.message} />
       )}
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          name="email"
-          placeholder="Enter email"
-          style={{ fontSize: "inherit" }}
-          onChange={handleInputChange}
-        />
-        {formErrors.emailError && (
-          <Form.Text className="text-danger">{formErrors.emailError}</Form.Text>
-        )}
-      </Form.Group>
+      <div className={styles.brandText}>
+        <h1>SpendWize</h1>
+        <h5>Your gateway to financial mindfulness.</h5>
+      </div>
+      <Form className="rounded shadow p-3">
+        <Card.Title className="mb-3 fs-3">
+          {login ? "Sign in" : "Create an account"}
+        </Card.Title>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Control
+            type="email"
+            placeholder="Email"
+            size="lg"
+            value={authState.email}
+            onChange={emailChangeHandler}
+          />
+          {error && !authState.isEmailValid && (
+            <Form.Text className="text-danger">
+              Please enter a valid email.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          name="password"
-          placeholder="Password"
-          style={{ fontSize: "inherit" }}
-          onChange={handleInputChange}
-        />
-        {formErrors.passwordError && (
-          <Form.Text className="text-danger">
-            {formErrors.passwordError}
-          </Form.Text>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            size="lg"
+            value={authState.password}
+            onChange={passwordChangeHandler}
+          />
+          {error && !authState.isPasswordValid && (
+            <Form.Text className="text-danger">
+              Password must be at least 8 characters long and contain at least
+              one lowercase letter, one uppercase letter, one symbol, and one
+              number.
+            </Form.Text>
+          )}
+        </Form.Group>
+        {!login && (
+          <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
+            <Form.Control
+              type="password"
+              placeholder="Re-enter Password"
+              size="lg"
+              value={authState.confirmPassword}
+              onChange={passwordConfirmationChangeHandler}
+            />
+            {error && !authState.arePasswordsMatching && (
+              <Form.Text className="text-danger">
+                Passwords don't match
+              </Form.Text>
+            )}
+          </Form.Group>
         )}
-      </Form.Group>
-
-      <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
-        <Form.Label>Confirm password</Form.Label>
-        <Form.Control
-          type="password"
-          name="confirmPassword"
-          placeholder="Password"
-          style={{ fontSize: "inherit" }}
-          onChange={handleInputChange}
-        />
-        {formErrors.confirmPasswordError && (
-          <Form.Text className="text-danger">
-            {formErrors.confirmPasswordError}
-          </Form.Text>
-        )}
-      </Form.Group>
-
-      <Button
-        variant="primary"
-        type="submit"
-        style={{ fontSize: "inherit" }}
-        disabled={
-          //   !Object.values(formErrors).every((error) => error === "") ||
-          !formData.email ||
-          !formData.password ||
-          !formData.confirmPassword ||
-          formData.confirmPassword !== formData.password ||
-          formErrors.emailError !== ""
-        }
-      >
-        Submit
-      </Button>
-    </Form>
+        <Button variant="success" type="submit" onClick={formSubmitHandler}>
+          {login ? "Log In" : "Sign Up"}
+        </Button>
+        <Form.Text className="mx-3 text-muted pointer pe-auto">
+          {login ? "Not registered? " : "Already registered? "}
+          <a
+            className="text-primary text-decoration-none align-self-center"
+            href="#2123"
+            onClick={(e) => {
+              e.preventDefault();
+              setLogin((s) => !s);
+            }}
+          >
+            {!login ? "Log in" : "Sign up"}
+          </a>
+        </Form.Text>
+      </Form>
+    </div>
   );
-};
+}
 
 export default Signup;
