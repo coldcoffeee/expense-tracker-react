@@ -3,7 +3,10 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
+import { useNavigate } from "react-router-dom";
+
 const Header = (props) => {
+  const nav = useNavigate();
   return (
     <>
       <Navbar expand="lg" fixed="top" className="bg-body-tertiary">
@@ -23,10 +26,22 @@ const Header = (props) => {
                 Another action
               </NavDropdown.Item>
               <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
+              {localStorage.getItem("idToken") && (
+                <>
+                  <NavDropdown.Divider />
+
+                  <NavDropdown.Item
+                    href="#action/3.4"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      localStorage.removeItem("idToken");
+                      nav("/signup");
+                    }}
+                  >
+                    Logout
+                  </NavDropdown.Item>
+                </>
+              )}
             </NavDropdown>
           </Navbar.Collapse>
         </Container>
