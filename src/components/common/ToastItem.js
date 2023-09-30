@@ -2,17 +2,18 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 
 import styles from "./ToastItem.module.css";
+// import { NavLink } from "react-router-dom";
 
 const ToastItem = ({ status, message }) => {
-  console.log(
-    status === "error"
-      ? styles.error
-      : status === "info"
-      ? styles.info
-      : status === "success"
-      ? styles.success
-      : styles.completed
-  );
+  // console.log(
+  //   status === "error"
+  //     ? styles.error
+  //     : status === "info"
+  //     ? styles.info
+  //     : status === "success"
+  //     ? styles.success
+  //     : styles.completed
+  // );
   return (
     <>
       <ToastContainer

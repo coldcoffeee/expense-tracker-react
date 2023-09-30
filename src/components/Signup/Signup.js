@@ -57,6 +57,7 @@ function Signup() {
               status: "success",
             },
           });
+          console.log(data);
           localStorage.setItem("idToken", data.idToken);
         } catch (err) {
           setShowToast({

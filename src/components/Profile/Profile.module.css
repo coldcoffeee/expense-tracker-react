@@ -1,0 +1,35 @@
+.formContainer {
+  height: 80%;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.textArea {
+  display: flex;
+  flex-direction: column;
+}
+
+.textArea small {
+  align-self: flex-end;
+  color: gray;
+}
+
+@media (orientation: portrait) {
+  .formContainer {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .textArea {
+    margin-bottom: 5vh;
+  }
+  .textArea h1 {
+    font-size: 1.6rem;
+  }
+
+  .textArea small {
+    align-self: center;
+  }
+}
