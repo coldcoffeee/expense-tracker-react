@@ -21,10 +21,17 @@ const Profile = () => {
             idToken: localStorage.getItem("idToken"),
           }
         );
-        setName(data.users[0].displayName);
-        setPicURL(data.users[0].photoUrl);
+        if (data.users[0].displayName && data.users[0].photoUrl) {
+          setName(data.users[0].displayName);
+          setPicURL(data.users[0].photoUrl);
+        }
       } catch (err) {
         console.log("Error fetching data.");
+        setShowNotification({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setTimeout(setShowNotification, 5000, null);
       }
     })();
   }, []);
@@ -155,19 +162,42 @@ const Profile = () => {
         <Button variant="success" type="submit" onClick={formSubmitHandler}>
           Update
         </Button>
-        {/* <Form.Text className="mx-3 text-muted pointer pe-auto">
-        {login ? "Not registered? " : "Already registered? "}
-        <a
-          className="text-primary text-decoration-none align-self-center"
-          href="#2123"
-          onClick={(e) => {
-            e.preventDefault();
-            setLogin((s) => !s);
-          }}
-        >
-          {!login ? "Log in" : "Sign up"}
-        </a>
-      </Form.Text> */}
+        <br />
+        <br />
+        <Form.Text className="text-danger pointer pe-auto">
+          Looks like your email is unverified.
+          <br />
+          <a
+            className="text-primary text-decoration-none align-self-center"
+            href="#2123"
+            onClick={async (e) => {
+              e.preventDefault();
+              try {
+                await axios.post(
+                  `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.REACT_APP_FIREBASE_WEB_API_KEY}`,
+                  {
+                    idToken: localStorage.getItem("idToken"),
+                    requestType: "VERIFY_EMAIL",
+                  }
+                );
+                setShowNotification({
+                  status: "success",
+                  message: "Verification link sent. Please check your email.",
+                });
+                setTimeout(setShowNotification, 5000, null);
+              } catch (error) {
+                console.log(error);
+                setShowNotification({
+                  status: "error",
+                  message: "Something went wrong",
+                });
+                setTimeout(setShowNotification, 5000, null);
+              }
+            }}
+          >
+            Click here to verify your email.
+          </a>
+        </Form.Text>
       </Form>
     </div>
   );
