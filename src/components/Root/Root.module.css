@@ -2,4 +2,8 @@
   width: 100%;
   height: 100vh;
   position: relative;
+  /* z-index: -30; */
+  background-image: url("https://upload.wikimedia.org/wikipedia/commons/3/39/Leaf_icon_15.svg");
+  background-size: 500%;
+  background-position: -15% 60%;
 }

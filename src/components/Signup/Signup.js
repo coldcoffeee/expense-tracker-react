@@ -118,7 +118,13 @@ function Signup() {
         <h1>SpendWize</h1>
         <h5>Your gateway to financial mindfulness.</h5>
       </div>
-      <Form className="rounded shadow p-3">
+      <Form
+        className="rounded shadow-lg p-3"
+        style={{
+          backdropFilter: "blur(20px)",
+          backgroundColor: "rgba(255,255,255,0.3)",
+        }}
+      >
         <Card.Title className="mb-3 fs-3">
           {login ? "Sign in" : "Create an account"}
         </Card.Title>
@@ -183,6 +189,19 @@ function Signup() {
             }}
           >
             {!login ? "Log in" : "Sign up"}
+          </a>
+        </Form.Text>
+        <br />
+        <Form.Text className="text-muted pointer pe-auto">
+          <a
+            className="text-primary text-decoration-none align-self-center"
+            href="#2123"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/account-recovery");
+            }}
+          >
+            Forgot password?
           </a>
         </Form.Text>
       </Form>

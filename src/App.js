@@ -4,6 +4,7 @@ import Home from "./components/Home/Home";
 import Profile from "./components/Profile/Profile";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import ForgotPassword from "./components/Signup/ForgotPassword";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -14,6 +15,7 @@ const App = () => {
         { path: "home", element: <Home /> },
         { path: "signup", element: <Signup /> },
         { path: "profile", element: <Profile /> },
+        { path: "account-recovery", element: <ForgotPassword /> },
       ],
       errorElement: () => <h1>404</h1>,
     },

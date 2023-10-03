@@ -113,7 +113,13 @@ const Profile = () => {
         <h1>Personalise your profile</h1>
         <small>Help us know you better</small>
       </div>
-      <Form className="rounded shadow p-5">
+      <Form
+        className="rounded shadow p-5"
+        style={{
+          backdropFilter: "blur(20px)",
+          backgroundColor: "rgba(255,255,255,0.3)",
+        }}
+      >
         <Card.Title className="mb-3 fs-3">User Details</Card.Title>
         <Form.Group className="mb-3" controlId="formBasicName">
           <Form.Control
